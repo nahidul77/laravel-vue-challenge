@@ -34,7 +34,13 @@ class TicketsController extends Controller
      */
     public function create()
     {
-        return inertia('Tickets/CreateTicket');
+        $priorities = TicketPriority::toSelectArray();
+        $statuses = TicketStatus::toSelectArray();
+
+        return inertia('Tickets/CreateTicket', [
+            'priorities' => $priorities,
+            'statuses' => $statuses,
+        ]);
     }
 
     /**
