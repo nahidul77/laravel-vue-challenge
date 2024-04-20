@@ -41,9 +41,7 @@ class Ticket extends Model
     {
         return [
             'title' => $this->title,
-            'priority' => $this->priority,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
+            'description' => $this->description,
         ];
     }
 }

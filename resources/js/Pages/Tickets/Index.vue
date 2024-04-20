@@ -1,6 +1,5 @@
 <script setup>
 import Pagination from '@/Components/Pagination.vue'
-import { computed, ref } from "vue";
 import { Link } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import dateFormatter from '@/Utils/dateFormatter';
@@ -11,6 +10,7 @@ const props = defineProps({
     tickets: Object,
     priorities: Object,
     statuses: Object,
+    filters: Object,
 })
 
 const formatDate = dateFormatter.formatDate;
@@ -40,7 +40,7 @@ const breadcrumbs = [
                     Create Ticket
                 </a>
             </div>
-            <Filter :priorities="priorities" :statuses="statuses" />
+            <Filter :filters="filters" :priorities="priorities" :statuses="statuses" />
             <div class="overflow-x-auto shadow  sm:rounded-lg">
                 <table class="min-w-full divide-y divide-gray-700">
                     <thead class="">

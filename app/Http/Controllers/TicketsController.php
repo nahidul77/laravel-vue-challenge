@@ -15,22 +15,57 @@ class TicketsController extends Controller
      */
     public function index(Request $request)
     {
+        // Get Priority and status filter options
         $priorities = TicketPriority::toSelectArray();
         $statuses = TicketStatus::toSelectArray();
 
+        // Get default 10 items if per_page parameter is empty
         $perPage = $request->input('per_page') ?? 10;
 
-        $tickets = Ticket::with('user')
-            ->orderBy('created_at', 'desc')->paginate($perPage)->appends(
-                [
-                    'per_page' => $perPage
-                ]
-            );
+        // Filters query params
+        $filters = $request->only([
+            'searchInput', 'status', 'priority', 'date'
+        ]);
+
+        // Initiate query builder
+        if ($filters['searchInput'] ?? false) {
+            // If search input is provided, use search functionality
+            $query = Ticket::search($filters['searchInput'])->query(function ($query) {
+                // Join users table and eager load user relationship
+                $query->with('user');
+            });
+        } else {
+            // If no search input, simply eager load user relationship
+            $query = Ticket::with('user');
+        }
+
+        // Apply priority filter if provided
+        if ($filters['priority'] ?? false) {
+            $query->where('priority', $filters['priority']);
+        }
+
+        // Apply status filter if provided
+        if ($filters['status'] ?? false) {
+            $query->where('status', $filters['status']);
+        }
+
+        // Apply date range filter if provided
+        if ($filters['date'] ?? false) {
+            // Extract start and end dates from the date filter array
+            $startDate = $filters['date'][0];
+            $endDate = $filters['date'][1];
+            // Filter records where created_at falls within the specified date range
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Paginate the results with the specified query parameters
+        $tickets = $query->paginate($perPage)->withQueryString();
 
         return inertia('Tickets/Index', [
             'tickets' => $tickets,
             'priorities' => $priorities,
             'statuses' => $statuses,
+            'filters' => $filters,
         ]);
     }
 
