@@ -15,6 +15,9 @@ class TicketsController extends Controller
      */
     public function index(Request $request)
     {
+        $priorities = TicketPriority::toSelectArray();
+        $statuses = TicketStatus::toSelectArray();
+
         $perPage = $request->input('per_page') ?? 10;
 
         $tickets = Ticket::with('user')
@@ -26,6 +29,8 @@ class TicketsController extends Controller
 
         return inertia('Tickets/Index', [
             'tickets' => $tickets,
+            'priorities' => $priorities,
+            'statuses' => $statuses,
         ]);
     }
 
