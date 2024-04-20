@@ -13,11 +13,17 @@ class TicketsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page') ?? 10;
+
         $tickets = Ticket::with('user')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc')->paginate($perPage)->appends(
+                [
+                    'per_page' => $perPage
+                ]
+            );
+
         return inertia('Tickets/Index', [
             'tickets' => $tickets,
         ]);

@@ -7,16 +7,7 @@ import dateFormatter from '@/Utils/dateFormatter';
 import Breadcrumbs from "@/Components/Breadcrumbs.vue";
 
 const props = defineProps({
-    tickets: Array,
-})
-
-const currentPage = ref(1);
-const perPage = ref(10);
-
-const paginatedTickets = computed(() => {
-    let start = (currentPage.value - 1) * perPage.value;
-    let end = start + perPage.value;
-    return props.tickets.slice(start, end);
+    tickets: Object,
 })
 
 const formatDate = dateFormatter.formatDate;
@@ -82,7 +73,7 @@ const breadcrumbs = [
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-700">
-                        <tr v-for="ticket in paginatedTickets" :key="ticket.id">
+                        <tr v-for="ticket in tickets.data" :key="ticket.id">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ ticket.id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{
                                 formatDate(ticket.created_at) }}</td>
@@ -98,8 +89,8 @@ const breadcrumbs = [
                         </tr>
                     </tbody>
                 </table>
-                <Pagination :total-items="tickets.length" :current-page.sync="currentPage" :per-page="perPage"
-                    @update:currentPage="currentPage = $event" />
+                <Pagination :links="tickets.links" :nextLink="tickets.next_page_url"
+                    :prevLink="tickets.prev_page_url" />
             </div>
         </div>
     </AuthenticatedLayout>
