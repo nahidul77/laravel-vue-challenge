@@ -30,9 +30,8 @@ class TicketsController extends Controller
         // Initiate query builder
         if ($filters['searchInput'] ?? false) {
             // If search input is provided, use search functionality
-            $query = Ticket::search($filters['searchInput'])->query(function ($query) {
-                // Join users table and eager load user relationship
-                $query->with('user');
+            $query = Ticket::search($filters['searchInput'])->query(function ($builder) {
+                $builder->join('users', 'tickets.user_id', '=', 'users.id')->with('user');
             });
         } else {
             // If no search input, simply eager load user relationship

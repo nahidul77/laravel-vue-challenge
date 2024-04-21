@@ -40,8 +40,10 @@ class Ticket extends Model
     public function toSearchableArray()
     {
         return [
-            'title' => $this->title,
-            'description' => $this->description,
+            'title' => '',
+            'description' => '',
+            'users.name' => '',
+            'users.email' => '',
         ];
     }
 }
