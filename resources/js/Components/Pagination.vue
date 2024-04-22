@@ -29,9 +29,9 @@ const pageNumberLinks = computed(() => {
         </Link>
         <ul class="flex space-x-1">
             <li v-for="link in pageNumberLinks" :key="link.url"
-                :class="{ 'bg-blue-800': link.active, 'hover:bg-gray-700': !link.active }">
-                <Link :href="link.url" class="py-2 px-4 leading-tight border border-gray-600 text-gray-400 text-sm"
-                    v-html="link.label">
+                class="py-2 px-4 leading-tight bg-gray-800 border border-gray-600 text-gray-400"
+                :class="{ 'bg-blue-600 text-white': link.active, 'hover:bg-gray-700 hover:text-white': !link.active }">
+                <Link :href="link.url" v-html="link.label">
                 </Link>
             </li>
         </ul>
