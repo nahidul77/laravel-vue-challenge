@@ -27,38 +27,33 @@ class TicketsController extends Controller
             'searchInput', 'status', 'priority', 'date'
         ]);
 
-        // Initiate query builder
+        // If search input is provided, Laravel Scout used to search
         if ($filters['searchInput'] ?? false) {
-            // If search input is provided, use search functionality
-            $query = Ticket::search($filters['searchInput'])->query(function ($builder) {
-                $builder->join('users', 'tickets.user_id', '=', 'users.id')->with('user');
+
+            $searchQuery = Ticket::search($filters['searchInput'])->query(function ($query) {
+                $query->join('users', 'tickets.user_id', '=', 'users.id');
             });
-        } else {
-            // If no search input, simply eager load user relationship
-            $query = Ticket::with('user');
+            $searchResults = $searchQuery->get()->pluck('id');
         }
 
-        // Apply priority filter if provided
-        if ($filters['priority'] ?? false) {
-            $query->where('priority', $filters['priority']);
-        }
-
-        // Apply status filter if provided
-        if ($filters['status'] ?? false) {
-            $query->where('status', $filters['status']);
-        }
-
-        // Apply date range filter if provided
-        if ($filters['date'] ?? false) {
-            // Extract start and end dates from the date filter array
-            $startDate = $filters['date'][0];
-            $endDate = $filters['date'][1];
-            // Filter records where created_at falls within the specified date range
-            $query->whereBetween('created_at', [$startDate, $endDate]);
-        }
-
-        // Paginate the results with the specified query parameters
-        $tickets = $query->paginate($perPage)->withQueryString();
+        $tickets = Ticket::with('user')
+            ->when(
+                $filters['priority'] ?? false,
+                fn ($query, $value) => $query->where('priority', $value)
+            )
+            ->when(
+                $filters['status'] ?? false,
+                fn ($query, $value) => $query->where('status', $value)
+            )
+            ->when(
+                $filters['date'] ?? false,
+                fn ($query, $value) => $query->whereBetween('created_at', $value)
+            )
+            ->when(
+                $searchResults ?? false,
+                fn ($query, $value) => $query->whereIn('id', $value)
+            )
+            ->paginate($perPage)->withQueryString();
 
         return inertia('Tickets/Index', [
             'tickets' => $tickets,
